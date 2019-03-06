@@ -42,35 +42,9 @@ class ChemistSpider(scrapy.Spider):
         new_item = ChemistItem()
         for product in products:
             shop_url = self.chemist_prefix + product.get('href')
-            yield scrapy.Request(shop_url, callback=self.parse_product_detail)
+            new_item['shop_url'] = shop_url
+            new_item['name'] = product.get('title')
+            new_item['price'] = product.find('span', class_='Price').text
+            new_item['image_url'] = product.find('img').get('src')
+            yield new_item
 
-
-    def parse_product_detail(self, response):
-        soup = BeautifulSoup(response.body, 'html.parser')
-
-
-    #
-    # def parse_details(self, response):
-    #     chemist_prefix = 'https://www.chemistwarehouse.com.au/'
-    #     soup = BeautifulSoup(response.body, 'html.parser')
-    #     next = set(soup.find_all('a', string='Next'))
-    #     next_arr = []
-    #     for ele in next:
-    #         next_arr.append(ele.get('href'))
-    #     if next_arr:
-    #         for suffix in next_arr:
-    #             url = chemist_prefix + suffix
-    #             yield scrapy.Request(url, callback=self.parse_details)
-    #     products = soup.find_all("div", class_="Product")
-    #     with open("output.csv", 'a') as resultFile:
-    #         for product in products:
-    #             result = []
-    #             name = product.find('div', class_="product-name").text
-    #             price = product.find('span', class_='Price').text
-    #             image = product.find('img').get('src')
-    #             result.append(name)
-    #             result.append(price)
-    #             result.append(image)
-    #             print(result)
-    #             wr = csv.writer(resultFile, dialect='excel')
-    #             wr.writerow(result)
