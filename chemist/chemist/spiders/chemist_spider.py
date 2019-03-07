@@ -27,17 +27,13 @@ class ChemistSpider(scrapy.Spider):
         for suffix in temp:
             url = self.chemist_prefix + suffix
             yield scrapy.Request(url, callback=self.parse_product)
+        banner = soup.find_all('a', href=re.compile(r"^https://www.chemistwarehouse.com.au/shop-online/*"))
+        for category in banner:
+            url = category.get('href')
+            yield scrapy.Request(url, callback=self.parse_product)
 
     def parse_product(self, response):
         soup = BeautifulSoup(response.body, 'html.parser')
-        next_tags = set(soup.find_all('a', string='Next'))
-        next_arr = []
-        for ele in next_tags:
-            next_arr.append(ele.get('href'))
-        if next_arr:
-            for suffix in next_arr:
-                url = self.chemist_prefix + suffix
-                yield scrapy.Request(url, callback=self.parse_product)
         products = soup.find_all('a', class_="product-container")
         new_item = ChemistItem()
         for product in products:
@@ -47,4 +43,12 @@ class ChemistSpider(scrapy.Spider):
             new_item['price'] = product.find('span', class_='Price').text
             new_item['image_url'] = product.find('img').get('src')
             yield new_item
+        next_tags = set(soup.find_all('a', string='Next'))
+        next_arr = []
+        for ele in next_tags:
+            next_arr.append(ele.get('href'))
+        if next_arr:
+            for suffix in next_arr:
+                url = self.chemist_prefix + suffix
+                yield scrapy.Request(url, callback=self.parse_product)
 
