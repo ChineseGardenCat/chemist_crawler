@@ -2,8 +2,6 @@ import scrapy
 from bs4 import BeautifulSoup
 from ..items import ChemistItem
 import re
-import csv
-
 
 class ChemistSpider(scrapy.Spider):
     name = 'chemist_spider'
