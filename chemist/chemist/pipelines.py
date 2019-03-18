@@ -45,12 +45,5 @@ class ChemistPipeline(object):
         doc_ref.set({
             u'value': ''
         })
-        # doc_ref = db.collection(u'Products').document(u'ChemistWarehouse').collection(u'product_list').document(item['name'])
-        # doc_ref.set({
-        #     u'product_name': item['name'].strip(),
-        #     u'product_image_url': item['image_url'].strip(),
-        #     u'product_price': item['price'].strip(),
-        #     u'product_shop_url': item['shop_url'].strip()
-        # })
 
         return item
