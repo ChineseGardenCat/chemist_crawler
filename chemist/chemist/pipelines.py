@@ -19,31 +19,15 @@ db = firestore.client()
 class ChemistPipeline(object):
 
     def process_item(self, item, spider):
-        new_product_ref = db.collection(u'products').document(item['name'])
-        doc_ref = new_product_ref.collection(u'name').document(u'product_original_name')
-        doc_ref.set({
-            u'value': item['name'].strip()
-        })
-        doc_ref = new_product_ref.collection(u'name').document(u'chinese_interpretation')
-        doc_ref.set({
-            u'value': ''
-        })
-        doc_ref = new_product_ref.collection(u'name').document(u'key_searching_words')
-        doc_ref.set({
-            u'keywords_list': []
-        })
-        doc_ref = new_product_ref.collection(u'retailers').document(u'chemist_warehouse')
-        doc_ref.set({
-            u'price': item['price'].strip()
-        })
-        doc_ref = new_product_ref.collection(u'retailers').document(u'chemist_warehouse').collection(u'resources').document(u'urls')
-        doc_ref.set({
+        new_product_ref = db.collection(u'products').document(u'chemistwarehouse').collection(u'product_list').document(item['name'])
+        new_product_ref.set({
+            u'product_name': item['name'],
+            u'product_price': item['price'],
             u'shop_url': item['shop_url'].strip(),
-            u'image_url': item['image_url'].strip()
-        })
-        doc_ref = new_product_ref.collection(u'retailers').document(u'chemist_warehouse').collection(u'resources').document(u'description')
-        doc_ref.set({
-            u'value': ''
+            u'image_url': item['image_url'].strip(),
+            u'categories': item['product_category'],
+            u'key_words': item['key_words']
+
         })
 
         return item

@@ -7,40 +7,34 @@ class ChemistSpider(scrapy.Spider):
     name = 'chemist_spider'
 
     start_urls = [
-        'https://www.chemistwarehouse.com.au/'
+        'https://www.chemistwarehouse.com.au/categories'
     ]
 
     chemist_prefix = 'https://www.chemistwarehouse.com.au/'
 
     def parse(self, response):
         soup = BeautifulSoup(response.body, 'html.parser')
-        # new_item = ChemistItem()
-
         # TODO: Find all category tages in the home page
         tags = soup.find_all('a', href=re.compile(r"^/shop-online/*"))
         temp = []
         for tag in tags:
             temp.append(tag.get('href'))
         temp = list(set(temp))
-        for suffix in temp:
-            url = self.chemist_prefix + suffix
-            yield scrapy.Request(url, callback=self.parse_product)
-        banner = soup.find_all('a', href=re.compile(r"^https://www.chemistwarehouse.com.au/shop-online/*"))
-        for category in banner:
-            url = category.get('href')
-            yield scrapy.Request(url, callback=self.parse_product)
+        if len(temp) != 0:
+            for suffix in temp:
+                url = self.chemist_prefix + suffix
+                yield scrapy.Request(url, callback=self.parse_product)
+        # banner = soup.find_all('a', href=re.compile(r"^https://www.chemistwarehouse.com.au/shop-online/*"))
+        # for category in banner:
+        #     url = category.get('href')
+        #     yield scrapy.Request(url, callback=self.parse_product)
 
     def parse_product(self, response):
         soup = BeautifulSoup(response.body, 'html.parser')
         products = soup.find_all('a', class_="product-container")
-        new_item = ChemistItem()
         for product in products:
             shop_url = self.chemist_prefix + product.get('href')
-            new_item['shop_url'] = shop_url
-            new_item['name'] = product.get('title')
-            new_item['price'] = product.find('span', class_='Price').text
-            new_item['image_url'] = product.find('img').get('src')
-            yield new_item
+            yield scrapy.Request(shop_url, callback=self.parse_product_page)
         next_tags = set(soup.find_all('a', string='Next'))
         next_arr = []
         for ele in next_tags:
@@ -50,3 +44,22 @@ class ChemistSpider(scrapy.Spider):
                 url = self.chemist_prefix + suffix
                 yield scrapy.Request(url, callback=self.parse_product)
 
+    def parse_product_page(self, response):
+        new_item = ChemistItem()
+        soup = BeautifulSoup(response.body, 'html.parser')
+        product_categories = soup.find('div', class_="breadcrumbs").find_all('a')
+        product_categories_list = []
+        for category in product_categories:
+            url = category.get('href')
+            spliter = re.compile(r'/')
+            splited_list = spliter.split(url)
+            if len(splited_list) > 2:
+                product_categories_list.append(splited_list[3])
+        product_details = soup.find('div', class_="productDetail")
+        new_item['shop_url'] = response.request.url
+        new_item['name'] = product_details.find('div', class_="product-name").find('h1').text.strip()
+        new_item['price'] = product_details.find('div', class_="Price").find('span').text.strip()
+        new_item['image_url'] = product_details.find('div', class_="pi_slide").find('a').get('href')
+        new_item['product_category'] = product_categories_list
+        new_item['key_words'] = product_details.find('div', class_="product-name").find('h1').text.strip().split()
+        yield new_item

@@ -17,3 +17,7 @@ class ChemistItem(scrapy.Item):
     image_url = scrapy.Field()
 
     shop_url = scrapy.Field()
+
+    product_category = scrapy.Field()
+
+    key_words= scrapy.Field()
