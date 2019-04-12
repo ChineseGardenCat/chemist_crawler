@@ -12,4 +12,3 @@ class priceline_spider(scrapy.Spider):
     ]
 
     def parse(self, response):
-        
