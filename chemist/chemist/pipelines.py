@@ -19,8 +19,9 @@ db = firestore.client()
 class ChemistPipeline(object):
 
     def process_item(self, item, spider):
-        new_product_ref = db.collection(u'products').document(u'chemistwarehouse').collection(u'product_list').document(item['name'])
+        new_product_ref = db.collection(u'products').document(item['retailer']).collection(u'product_list').document(item['name'])
         new_product_ref.set({
+            u'retailer': item['retailer'],
             u'product_name': item['name'],
             u'product_price': item['price'],
             u'shop_url': item['shop_url'].strip(),

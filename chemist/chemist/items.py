@@ -21,3 +21,5 @@ class ChemistItem(scrapy.Item):
     product_category = scrapy.Field()
 
     key_words= scrapy.Field()
+
+    retailer = scrapy.Field()

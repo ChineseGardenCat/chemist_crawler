@@ -14,7 +14,6 @@ class ChemistSpider(scrapy.Spider):
 
     def parse(self, response):
         soup = BeautifulSoup(response.body, 'html.parser')
-        # TODO: Find all category tages in the home page
         tags = soup.find_all('a', href=re.compile(r"^/shop-online/*"))
         temp = []
         for tag in tags:
@@ -62,4 +61,5 @@ class ChemistSpider(scrapy.Spider):
         new_item['image_url'] = product_details.find('div', class_="pi_slide").find('a').get('href')
         new_item['product_category'] = product_categories_list
         new_item['key_words'] = product_details.find('div', class_="product-name").find('h1').text.strip().split()
+        new_item['retailer'] = 'Chemist Warehouse'
         yield new_item
